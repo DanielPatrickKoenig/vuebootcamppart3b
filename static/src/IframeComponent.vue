@@ -1,5 +1,5 @@
 <template>
-  <iframe v-bind:src="src" style="width:100%; height:100%;"></iframe>
+  <iframe v-bind:src="src" style="width:100%; height:100%;border:none;"></iframe>
 </template>
 <script>
 export default {

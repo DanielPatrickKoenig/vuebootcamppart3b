@@ -18,7 +18,7 @@
     <div v-if="!editingDisabled" class="add-panel">
       <select v-model="selectedDataPoint">
         <option value="-1">Please Select a DataPoint</option>
-        <option v-for="(a, i) in availableDatapoints" :key="'datapoint' + i.toString()" v-bind:value="i" v-text="a.name"></option>
+        <option v-for="(a, i) in availableDatapoints" :key="'datapoint' + i.toString()" v-bind:value="i" v-text="a.name + ' (' + a.type + ')'"></option>
       </select>
       <select v-if="selectedDataPoint >= 0 && availableDatapoints[selectedDataPoint].templates != undefined" v-model="availableDatapoints[selectedDataPoint].template">
         <option v-for="(n, i) in availableDatapoints[selectedDataPoint].templates" :key="n.toString() + '_' + i" v-bind:value="n" v-text="n"></option>
@@ -26,13 +26,13 @@
       <button v-if="selectedDataPoint >= 0" v-on:click="addElement(availableDatapoints[selectedDataPoint])">Add Element</button>
     </div>
     <draggableItem v-for="(e, i) in elements" :key="'item' + i.toString()" :coords="e.coords" :size="e.size" :dragid="i" :activez="handleZindexes.active" :inactivez="handleZindexes.inactive" :disabled="editingDisabled" border="#cccccc">
-      <imagecom v-if="e.tag == elementTypes.IMAGE" :src="e.src" slot="content"></imagecom>
-      <iframecom v-if="e.tag == elementTypes.IFRAME" :src="e.src" slot="content"></iframecom>
-      <piechart v-if="e.tag == elementTypes.CHART && e.template == chartTypes.PIE" slot="content" :chartdata="dataset[e.data]" :colors="colors" :sig="e.size" textcolor="#000000" :title="e.title"></piechart>
-      <bargroupchart v-if="e.tag == elementTypes.CHART && e.template == chartTypes.BARGROUP" slot="content" :chartdata="dataset[e.data]" :colors="colors" :sig="e.size" textcolor="#000000" :title="e.title"></bargroupchart>
-      <barchart v-if="e.tag == elementTypes.CHART && e.template == chartTypes.BAR" slot="content" :chartdata="dataset[e.data]" :color="colors[0]" :sig="e.size" textcolor="#000000" :title="e.title"></barchart>
-      <guagechart v-if="e.tag == elementTypes.CHART && e.template == chartTypes.GUAGE" slot="content" :chartdata="dataset[e.data]" :colors="colors" :sig="e.size" textcolor="#000000" :title="e.title"></guagechart>
-      <checkall v-if="e.tag == elementTypes.UI && e.template == uiTypes.CHECK_ALL" slot="content" :choices="e.data.content" :context="e.data.context"></checkall>
+      <imagecom v-if="matchCheck(e, elementTypes.STATIC, staticTypes.IMAGE)" :src="e.data" slot="content"></imagecom>
+      <iframecom v-if="matchCheck(e, elementTypes.STATIC, staticTypes.IFRAME)" :src="e.data" slot="content"></iframecom>
+      <piechart v-if="matchCheck(e, elementTypes.CHART, chartTypes.PIE)" slot="content" :chartdata="dataset[e.data]" :colors="colors" :sig="e.size" textcolor="#000000" :title="e.title"></piechart>
+      <bargroupchart v-if="matchCheck(e, elementTypes.CHART, chartTypes.BARGROUP)" slot="content" :chartdata="dataset[e.data]" :colors="colors" :sig="e.size" textcolor="#000000" :title="e.title"></bargroupchart>
+      <barchart v-if="matchCheck(e, elementTypes.CHART, chartTypes.BAR)" slot="content" :chartdata="dataset[e.data]" :color="colors[0]" :sig="e.size" textcolor="#000000" :title="e.title"></barchart>
+      <guagechart v-if="matchCheck(e, elementTypes.CHART, chartTypes.GUAGE)" slot="content" :chartdata="dataset[e.data]" :colors="colors" :sig="e.size" textcolor="#000000" :title="e.title"></guagechart>
+      <checkall v-if="matchCheck(e, elementTypes.UI, uiTypes.CHECK_ALL)" slot="content" :choices="e.data.content" :context="e.data.context"></checkall>
     </draggableItem>
     <draggableItem v-for="(h, i) in handles" :key="'handle' + i.toString()" :coords="h.coords" :size="handleSize" :dragid="h.id" :activez="handleZindexes.active" :inactivez="handleZindexes.inactive" :disabled="editingDisabled" bg="#cccccc"></draggableItem>
   </div>
@@ -73,8 +73,7 @@ export default {
       elementDefaults: {width: 300, height: 300},
       selectedDataPoint: -1,
       elementTypes: {
-        IMAGE: 'Image',
-        IFRAME: 'iFrame',
+        STATIC: 'Static',
         CHART: 'Chart',
         UI: 'UI'
       },
@@ -89,6 +88,10 @@ export default {
         CHECK_ONE: 'checkone',
         CHECK_ALL: 'checkall',
         SELECT: 'select'
+      },
+      staticTypes: {
+        IMAGE: 'image',
+        IFRAME: 'iframe'
       },
       selectedChartType: undefined,
       availableDatapoints: [
@@ -117,52 +120,28 @@ export default {
     },
     addElement: function (data) {
       var self = this
-      switch (data.type) {
-        case self.$data.elementTypes.IMAGE:
-        case self.$data.elementTypes.IFRAME:
+      console.log(data)
+      self.$data.elements.push(
         {
-          self.$data.elements.push(
-            {
-              coords:
-              {
-                left: 10,
-                top: 10
-              },
-              size:
-              {
-                width: self.$data.elementDefaults.width,
-                height: self.$data.elementDefaults.height
-              },
-              tag: data.type,
-              src: data.src
-            }
-          )
-          break
+          coords:
+          {
+            left: 10,
+            top: 10
+          },
+          size:
+          {
+            width: self.$data.elementDefaults.width,
+            height: self.$data.elementDefaults.height
+          },
+          tag: data.type,
+          template: data.template,
+          data: data.data,
+          title: data.name
         }
-        case self.$data.elementTypes.CHART:
-        case self.$data.elementTypes.UI:
-        {
-          self.$data.elements.push(
-            {
-              coords:
-              {
-                left: 10,
-                top: 10
-              },
-              size:
-              {
-                width: self.$data.elementDefaults.width,
-                height: self.$data.elementDefaults.height
-              },
-              tag: data.type,
-              template: data.template,
-              data: data.data,
-              title: data.name
-            }
-          )
-          break
-        }
-      }
+      )
+    },
+    matchCheck: function (e, tag, template) {
+      return e.tag.toLowerCase() === tag.toLowerCase() && e.template.toLowerCase() === template.toLowerCase()
     },
     renderHandles: function () {
       var self = this
@@ -365,7 +344,6 @@ ul.layer-list-component{
   }
 }
 div.layer-list-slot{
-  
   > button.delete-button{
     float: right;
     background-color: transparent;
@@ -381,13 +359,14 @@ div.layer-list-slot{
   }
   > button.delete-button::after{
     content:'\2297';
-    
-    
   }
   > label{
     float:left;
     font-weight:bold;
     padding-bottom:10px;
+    width: 145px;
+    text-align: left;
+    font-size: 12px;
   }
   > ul.layer-dimensions{
     display: block;

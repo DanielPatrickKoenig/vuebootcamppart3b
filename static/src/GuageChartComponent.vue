@@ -34,14 +34,6 @@ export default {
     renderChart: function () {
       var self = this
       var option = {
-        title: {
-          text: this.title,
-          textStyle: {
-            color: this.textcolor
-          },
-          x: 'center',
-          y: 'bottom'
-        },
         tooltip: {
           formatter: '{a} <br/>{c}%'
         },

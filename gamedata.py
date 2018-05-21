@@ -107,7 +107,12 @@ def update_data(req):
         createUIEntry(df.groupby('Genre')[['NA_Sales','EU_Sales','JP_Sales','Other_Sales']].sum().transpose().to_dict().keys(), 'Genre List', 'checkall', 'genre'),
         createUIEntry(df.groupby('Platform')[['NA_Sales','EU_Sales','JP_Sales','Other_Sales']].sum().transpose().to_dict().keys(), 'System List', 'checkall', 'system'),
         createUIEntry(df.groupby('Publisher')[['NA_Sales','EU_Sales','JP_Sales','Other_Sales']].sum().transpose().to_dict().keys(), 'Publisher List', 'checkall', 'publisher'),
-        createUIEntry(df.groupby('Name')[['NA_Sales','EU_Sales','JP_Sales','Other_Sales']].sum().transpose().to_dict().keys(), 'Game List', 'checkall', 'game')
+        #createUIEntry(df.groupby('Name')[['NA_Sales','EU_Sales','JP_Sales','Other_Sales']].sum().transpose().to_dict().keys(), 'Filter: Game List', 'checkall', 'game'),
+        createStaticEntry('https://casualgamerevolution.com/sites/default/files/field/image/games_scrabble.jpg','Games Scrabble','Static','image'),
+        createStaticEntry('https://img.wonderhowto.com/img/76/96/63536479094412/0/video-games-can-help-you-increase-your-productivity-work.w1456.jpg','Gamer','Static','image'),
+        createStaticEntry('https://www.youtube.com/embed/k28fnz2_fEk','Games Accidentally Made Harder','Static','iframe'),
+        createStaticEntry('https://www.youtube.com/embed/vf4SDkzwuHc','Best Games of All TIme','Static','iframe'),
+        createStaticEntry('http://www.agame.com/game/cube-crash','Cube Crash','Static','iframe')
     ]
 
     #print udf[['Critic_Score']].dropna().sum()
@@ -128,3 +133,6 @@ def createChartEntry(data,name,chart_type,chart_types):
 def createUIEntry(data,name,ui_type,context):
     mod_data = [{'text':data[n],'value':n,'selected':False} for n,i in enumerate(data)]
     return {'data': {'content':mod_data,'context':context}, 'name': name, 'type': 'UI', 'template': ui_type}
+
+def createStaticEntry(data,name,stype,sub_type):
+    return {'data': data, 'name': name, 'type': stype, 'template': sub_type}
