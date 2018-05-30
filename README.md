@@ -1,7 +1,8 @@
 # vuebootcamppart3b
 
 inside /static initialize a git bash:
-1. run 'npm install'
+1. 'npm install'
+2. 'npm run build'
 
 in a command line window:
 1. 'pip install virtualenv'
